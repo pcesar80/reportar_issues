@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reporte de Incidentes PDT - CMA</title>
+  <title>Formulario de Reporte de Incidentes Central Pasajes</title>
   
   <style>
     body {
@@ -21,14 +21,17 @@
       margin: 8px 0 4px;
       font-weight: bold;
     }
-    input[type="text"], input[type="datetime-local"], textarea {
-      width: 100%;
-      padding: 6px;
-      box-sizing: border-box;
-      margin-bottom: 12px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
+    input[type="text"], 
+input[type="datetime-local"], 
+textarea,
+select {
+  width: 100%;
+  padding: 6px;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
     textarea {
       resize: vertical;
     }
@@ -80,7 +83,7 @@
 </head>
 <body>
 
-  <h1>Formulario de Reporte de Incidentes – CMA</h1>
+  <h1>Reporte de Incidentes Central Pasajes </h1>
 
   <form id="reportForm">
     <label for="issueTitle">Título referencial:</label>
@@ -90,7 +93,7 @@
 
     <div class="group-horizontal">
       <div class="group-item">
-        <label for="userContact">Nombre y contacto del usuario:</label>
+        <label for="userContact">Nombre y contacto del Tester:</label>
         <input type="text" id="userContact" name="userContact" required>
       </div>
       <div class="group-item">
@@ -103,22 +106,18 @@
       <div class="group-item">
         <label>Plataformas afectadas:</label>
         <div class="checkbox-group">
-          <label><input type="checkbox" name="platforms" value="Consola Saas"> Consola Saas</label>
-          <label><input type="checkbox" name="platforms" value="Consola Paas"> Consola Paas</label>
-          <label><input type="checkbox" name="platforms" value="Billetera Personal"> Billetera Personal</label>
-          <label><input type="checkbox" name="platforms" value="Billetera Comercial"> Billetera Comercial</label>
-          <label><input type="checkbox" name="platforms" value="Link de Pago"> Link de Pago</label>
-          <label><input type="checkbox" name="platforms" value="Comedor Saas"> Comedor Saas</label>
-          <label><input type="checkbox" name="platforms" value="Billetera Comedor"> Billetera Comedor</label>
+          <label><input type="checkbox" name="platforms" value="Central pasaje WEB"> Central pasaje WEB</label>
+          <label><input type="checkbox" name="platforms" value="Central pasaje APP"> Central pasaje APP</label>
         </div>
+        
       </div>
       <div class="group-item">
         <label>Ambiente donde ocurrió el error:</label>
         <div class="checkbox-group">
-          <label><input type="checkbox" name="environment" value="Prod"> Prod</label>
+          <label><input type="checkbox" name="environment" value="Dev">  Dev</label>
           <label><input type="checkbox" name="environment" value="Test"> Test</label>
-          <label><input type="checkbox" name="environment" value="Dev"> Dev</label>
           <label><input type="checkbox" name="environment" value="Demo"> Demo</label>
+          <label><input type="checkbox" name="environment" value="Prod"> Prod</label>
         </div>
       </div>
     </div>
@@ -129,14 +128,43 @@
         <input type="text" id="appVersionApp" name="appVersionApp">
       </div>
       <div class="group-item">
-        <label for="appVersionWeb">Versión de la Web:</label>
+        <label for="appVersionWeb">Explorador y Versión de la Web:</label>
         <input type="text" id="appVersionWeb" name="appVersionWeb">
+      </div>
+    </div>
+
+    <div class="group-horizontal">
+      <div class="group-item">
+        <label for="severity">Severidad:</label>
+        <select id="severity" name="severity">
+          <option value="">-- Seleccionar --</option>
+          <option value="Crítica">Crítica</option>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
+      </div>
+    
+      <div class="group-item">
+        <label for="priority">Prioridad:</label>
+        <select id="priority" name="priority">
+          <option value="">-- Seleccionar --</option>
+          <option value="Alta">Alta</option>
+          <option value="Media">Media</option>
+          <option value="Baja">Baja</option>
+        </select>
       </div>
     </div>
 
     <h2>Detalles del issue detectado</h2>
     <label for="issueDetails">Detalle del issue detectado:</label>
     <textarea id="issueDetails" name="issueDetails" rows="3"></textarea>
+
+<label for="expectedResult">Resultado esperado:</label>
+<textarea id="expectedResult" name="expectedResult"></textarea>
+
+<label for="actualResult">Resultado actual:</label>
+<textarea id="actualResult" name="actualResult"></textarea>
 
     <label>Adjuntar imágenes del issue:</label>
     <input type="file" id="dbAttachments" name="dbAttachments" accept="image/*" multiple>
@@ -258,13 +286,13 @@
     doc.setFont(undefined, 'normal');
     doc.text(label, marginX, y);
     y += lineHeight;
-    const splitText = doc.splitTextToSize(text || ' - ', contentWidth);
+    const splitText = doc.splitTextToSize(text || ' ', contentWidth);
     doc.setFont(undefined, 'bold');
     doc.text(splitText, marginX, y);
     y += splitText.length * lineHeight + 4;
   }
 
-  addTitle('Formulario de Reporte de Incidentes – CMA');
+  addTitle('Formulario de Reporte de Incidentes');
 
   addSectionHeader('Información general');
   addField('Título referencial:', formData.get('issueTitle'));
@@ -277,18 +305,22 @@
   addField('Ambientes:', formData.getAll('environment').join(', ') || 'Ninguno');
   addField('Versión App:', formData.get('appVersionApp'));
   addField('Versión Web:', formData.get('appVersionWeb'));
+  addField('Severidad:', formData.get('severity'));
+  addField('Prioridad:', formData.get('priority'));
+  y += 10; // espacio extra
+  addSectionHeader('Información del issue detectado');
+  addMultilineField('Detalle General:', formData.get('issueDetails'));
+  addMultilineField('Resultado Esperado:', formData.get('expectedResult'));
+   addMultilineField('Resultado Actual:', formData.get('actualResult'));
 
-  addSectionHeader('Detalles del issue detectado');
-  addMultilineField('Detalle:', formData.get('issueDetails'));
-
-  addSectionHeader('Pasos para reproducir el problema');
+  addSectionHeader('Pasos para reproducir');
   const steps = formData.getAll('steps[]').filter(s => s.trim());
   steps.forEach((s, i) => {
     doc.setFont(undefined, 'bold');
     doc.text(`${i + 1}. ${s}`, marginX, y);
     y += lineHeight;
   });
-
+  y += 10; // espacio extra
   addSectionHeader('Información técnica adicional');
   addMultilineField('Detalle técnico:', formData.get('techInfo'));
 
@@ -320,7 +352,7 @@
   await addImages(document.getElementById('dbAttachments'), 'Imágenes adjuntas – Base de Datos');
   await addImages(document.getElementById('moreAttachments'), 'Imágenes adjuntas – Más Adjuntos');
 
-  doc.save('Reporte_Incidentes_CMA.pdf');
+  doc.save('Reporte_Incidentes.pdf');
 });
 </script>
 
